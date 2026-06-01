@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>RingConn标签信息</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a3a 0%, #0f1a24 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Roboto, 'Microsoft YaHei', sans-serif;
+            padding: 12px;
+        }
+
+        .app-container {
+            max-width: 1000px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 1.5rem;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 { font-size: 1.3rem; color: white; text-align: center; margin-bottom: 0.25rem; }
+        .sub { text-align: center; color: #a0c4e8; margin-bottom: 1rem; font-size: 0.7rem; }
+
+        .panel {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 0.8rem;
+            flex-wrap: wrap;
+        }
+        
+        .panel-btn {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #34495e;
+            color: white;
+            white-space: nowrap;
+        }
+        .panel-btn:hover { transform: translateY(-1px); background: #3d5a73; }
+        .panel-btn.active { background: #f39c12; color: #2c3e50; box-shadow: 0 0 0 2px #ffd966; transform: scale(1.02); }
+
+        .device-panel .device-btn {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            background: #34495e;
+        }
+        .device-panel .device-btn.active {
+            background: #f39c12;
+            color: #2c3e50;
+        }
+
+        .color-panel {
+            gap: 0.4rem;
+        }
+        .color-panel .panel-btn {
+            padding: 0.35rem 0.7rem;
+            font-size: 0.7rem;
+        }
+
+        .number-panel {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.4rem;
+            margin-bottom: 0.8rem;
+        }
+        .number-panel .panel-btn {
+            text-align: center;
+            padding: 0.35rem 0;
+            font-size: 0.75rem;
+            white-space: nowrap;
+        }
+
+        .tags-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .tag-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 0.8rem;
+            padding: 0.5rem;
+            overflow-x: auto;
+        }
+
+        .tag-title {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #f39c12;
+            margin-bottom: 0.5rem;
+            padding-left: 0.5rem;
+        }
+
+        .tag-card {
+            background: white;
+            border-radius: 0.8rem;
+            padding: 0.8rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            font-family: 'Courier New', 'SF Mono', monospace;
+            font-size: 0.7rem;
+            line-height: 1.5;
+            overflow-x: auto;
+            word-break: break-all;
+            white-space: normal;
+        }
+        
+        .brand-large {
+            font-size: 1.4rem;
+            font-weight: 900;
+            font-family: 'Arial Black', 'Segoe UI Black', sans-serif;
+            letter-spacing: 2px;
+            color: #1a3a4e;
+            line-height: 1.2;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        
+        .tag-line {
+            white-space: nowrap;
+            font-family: 'Courier New', 'SF Mono', monospace;
+            font-size: 0.7rem;
+            overflow-x: auto;
+        }
+        
+        .first-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.2rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .barcode-label-right {
+            text-align: right;
+            font-size: 0.7rem;
+            font-family: 'Courier New', 'SF Mono', monospace;
+        }
+        .barcode-number-right {
+            text-align: right;
+            font-size: 0.7rem;
+            font-family: 'Courier New', 'SF Mono', monospace;
+            margin-top: 0.1rem;
+            margin-bottom: 0.3rem;
+        }
+        .serial-right {
+            text-align: right;
+            margin-top: 0.3rem;
+        }
+        
+        .mail-tag-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 0.2rem 0;
+        }
+        .mail-info-left {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #1a3a4e;
+            white-space: nowrap;
+            overflow-x: auto;
+        }
+        .mail-barcode-right {
+            font-family: 'Courier New', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        /* 手机端优化 */
+        @media (max-width: 600px) {
+            .mail-tag-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.2rem;
+            }
+            .mail-info-left {
+                white-space: normal;
+                word-break: break-word;
+                font-size: 0.7rem;
+            }
+            .mail-barcode-right {
+                white-space: normal;
+                word-break: break-all;
+                font-size: 0.6rem;
+            }
+        }
+        
+        .color-box-card {
+            background: white;
+            border-radius: 0.8rem;
+            padding: 0.8rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            font-family: 'Courier New', 'SF Mono', monospace;
+            font-size: 0.8rem;
+            line-height: 1.5;
+        }
+        .color-box-line {
+            margin: 0.2rem 0;
+            white-space: nowrap;
+        }
+        
+        /* RCA-02 彩盒标签专用样式 - 与其他标签保持一致 */
+        .color-box-card-rca02 {
+            background: white;
+            border-radius: 0.8rem;
+            padding: 0.8rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            font-family: 'Courier New', 'SF Mono', monospace;
+            font-size: 0.8rem;
+            line-height: 1.5;
+        }
+        .color-box-card-rca02 div {
+            margin: 0.2rem 0;
+            padding: 0;
+        }
+        
+        @media (max-width: 600px) {
+            .tag-line {
+                white-space: normal;
+                word-break: break-all;
+            }
+            .color-box-line {
+                white-space: normal;
+                word-break: break-all;
+            }
+        }
+
+        .placeholder-tag {
+            background: white;
+            border-radius: 0.8rem;
+            padding: 1rem;
+            text-align: center;
+            color: #999;
+            font-style: italic;
+            font-size: 0.8rem;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px dashed #ccc;
+        }
+
+        .display-area {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 1rem;
+            padding: 0.8rem;
+            min-height: 300px;
+        }
+        .display-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e0e6ed;
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.8rem;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .display-header > span { font-size: 0.8rem; font-weight: 600; color: #1a3a4e; }
+        .selection-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .tag-badge {
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: white;
+        }
+        .badge-device { background: #1e6f5c; }
+        .badge-lang { background: #f39c12; color: #2c3e50; }
+        .badge-color { background: #7f8c8d; }
+        .badge-number { background: #e67e22; }
+
+        .waiting-message {
+            text-align: center;
+            padding: 1.5rem;
+            color: #e67e22;
+            font-size: 0.9rem;
+        }
+        footer { margin-top: 0.8rem; text-align: center; font-size: 0.6rem; color: #8aaec2; }
+        
+        @media (min-width: 800px) {
+            .tags-container {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            .tag-section {
+                flex: 1;
+                min-width: 280px;
+            }
+        }
+        
+        @media (min-width: 600px) {
+            body { padding: 20px; }
+            .app-container { padding: 1.5rem; }
+            .panel-btn { padding: 0.5rem 1.2rem; font-size: 0.9rem; }
+            .device-panel .device-btn { padding: 0.6rem 1.2rem; font-size: 1rem; }
+            .color-panel .panel-btn { padding: 0.45rem 1rem; font-size: 0.85rem; }
+            .number-panel { gap: 0.6rem; }
+            .number-panel .panel-btn { padding: 0.45rem 0; font-size: 0.9rem; }
+            .tag-card { padding: 1rem; font-size: 0.75rem; }
+            .tag-line { font-size: 0.75rem; }
+            .tag-title { font-size: 0.9rem; }
+            .brand-large { font-size: 1.6rem; }
+            .mail-info-left { font-size: 0.85rem; }
+        }
+        
+        @media (max-width: 480px) {
+            .number-panel { gap: 0.3rem; }
+            .number-panel .panel-btn { padding: 0.3rem 0; font-size: 0.7rem; }
+            .panel-btn { padding: 0.35rem 0.6rem; font-size: 0.7rem; }
+            .device-panel .device-btn { padding: 0.35rem 0.6rem; font-size: 0.75rem; }
+            .color-panel .panel-btn { padding: 0.3rem 0.5rem; font-size: 0.65rem; }
+            .tag-card { padding: 0.6rem; }
+            .tag-line { font-size: 0.55rem; white-space: normal; word-break: break-all; }
+            .brand-large { font-size: 1.2rem; }
+            .mail-info-left { font-size: 0.65rem; }
+            .mail-barcode-right { font-size: 0.6rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <h1>🏷️ RingConn标签信息</h1>
+    <div class="sub">选择型号 / 语言 / 颜色 / 尺寸 → 自动生成标签</div>
+
+    <div class="panel device-panel">
+        <button class="panel-btn device-btn" data-device="RCA-01">RCA-01</button>
+        <button class="panel-btn device-btn" data-device="RCA-02">RCA-02</button>
+        <button class="panel-btn device-btn" data-device="RCP-01">RCP-01</button>
+    </div>
+
+    <div class="panel lang-panel">
+        <button class="panel-btn lang-btn" data-lang="zh">中文版</button>
+        <button class="panel-btn lang-btn" data-lang="en">英文版</button>
+        <button class="panel-btn lang-btn" data-lang="ja">日文版</button>
+    </div>
+
+    <div id="colorPanel" class="panel color-panel"></div>
+    <div id="numberPanel" class="panel number-panel"></div>
+
+    <div class="display-area">
+        <div class="display-header">
+            <span>📄 标签预览</span>
+            <div class="selection-tags" id="selectionTags">
+                <span class="tag-badge badge-device" id="activeDeviceTag">未选择</span>
+                <span class="tag-badge badge-lang" id="activeLangTag">-</span>
+                <span class="tag-badge badge-color" id="activeColorTag">-</span>
+                <span class="tag-badge badge-number" id="activeNumberTag">-</span>
+            </div>
+        </div>
+        <div id="dynamicContent">
+            <div class="waiting-message">⏳ 请选择型号、语言、颜色、尺寸</div>
+        </div>
+    </div>
+    <footer>尺寸 06-15 | 四个条件都满足后显示外箱标签、邮寄盒标签、彩盒标签</footer>
+</div>
+
+<script>
+    let currentDevice = null;
+    let currentLang = null;
+    let currentColor = null;
+    let currentNumber = null;
+
+    const NUMBER_LIST = ["06", "07", "08", "09", "10", "11", "12", "13", "14", "15"];
+
+    const DEVICE_COLORS = {
+        "RCA-01": ["磨砂黑", "耀阳金", "未来银", "玫瑰金"],
+        "RCA-02": ["沙丘金", "太空银"],
+        "RCP-01": ["磨砂黑", "耀阳金", "未来银", "缎光玫瑰金", "缎光银"]
+    };
+
+    const COLOR_CODE = {
+        "磨砂黑": "B", "耀阳金": "G", "未来银": "S", "玫瑰金": "R",
+        "沙丘金": "D", "太空银": "G", "缎光玫瑰金": "R", "缎光银": "L"
+    };
+
+    const COLOR_ENGLISH = {
+        "磨砂黑": "Matte Black", "耀阳金": "Royal Gold", "未来银": "Future Silver",
+        "玫瑰金": "Rose Gold", "沙丘金": "Dune Gold", "太空银": "Galaxy Silver",
+        "缎光玫瑰金": "Brushed Rose Gold", "缎光银": "Brushed Silver"
+    };
+
+    const COLOR_JAPANESE_RCA01 = {
+        "磨砂黑": "マットブラック", "耀阳金": "サンゴールド",
+        "未来银": "未来銀", "玫瑰金": "ローズゴールド"
+    };
+    const COLOR_JAPANESE_RCP01 = {
+        "磨砂黑": "マットブラック", "耀阳金": "ロイヤルゴールド",
+        "未来银": "フューチャーシルバー", "缎光玫瑰金": "ブラッシュドローズゴールド",
+        "缎光银": "ブラッシュドシルバー"
+    };
+
+    function getProductName(device) {
+        const names = {
+            "RCA-01": "Gen 2 Smart Ring",
+            "RCA-02": "Gen 2 Air Smart Ring",
+            "RCP-01": "Gen 3 Smart Ring"
+        };
+        return names[device] || "Gen 3 Smart Ring";
+    }
+
+    function getFullDate() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}${month}${day}`;
+    }
+
+    function getColorForOuterBox(device, color, lang) {
+        if (lang === 'zh') return color;
+        if (lang === 'en') return COLOR_ENGLISH[color] || color;
+        if (lang === 'ja') return COLOR_ENGLISH[color] || color;
+        return color;
+    }
+
+    function getColorForMail(device, color, lang) {
+        if (lang === 'zh') return color;
+        if (lang === 'en') return COLOR_ENGLISH[color] || color;
+        if (lang === 'ja') {
+            if (device === 'RCA-01') return COLOR_JAPANESE_RCA01[color] || color;
+            if (device === 'RCP-01') return COLOR_JAPANESE_RCP01[color] || color;
+            return color;
+        }
+        return color;
+    }
+
+    function getColorForColorBox(device, color, lang) {
+        if (lang === 'zh') return color;
+        if (lang === 'en') return COLOR_ENGLISH[color] || color;
+        if (lang === 'ja') {
+            if (device === 'RCA-01') return COLOR_JAPANESE_RCA01[color] || color;
+            if (device === 'RCP-01') return COLOR_JAPANESE_RCP01[color] || color;
+            return color;
+        }
+        return color;
+    }
+
+    function getMailLabelPrefix(lang) {
+        if (lang === 'zh') return '尺寸';
+        if (lang === 'en') return 'Size';
+        if (lang === 'ja') return 'サイズ';
+        return 'Size';
+    }
+
+    function getColorCode(color) {
+        return COLOR_CODE[color] || "X";
+    }
+
+    function formatSize(sizeNum) {
+        const num = parseInt(sizeNum);
+        return String(num).padStart(2, '0') + "#";
+    }
+
+    function getPlainSize(sizeNum) {
+        return parseInt(sizeNum).toString();
+    }
+
+    // 获取型番代码
+    function getModelCode(device, color, sizeNum) {
+        const size = parseInt(sizeNum);
+        
+        // RCP-01 日文版型番映射
+        if (device === 'RCP-01') {
+            const modelMap = {
+                'RCP-01_缎光银_06': 'RCP-01-125010611',
+                'RCP-01_缎光玫瑰金_06': 'RCP-01-125010612',
+                'RCP-01_未来银_06': 'RCP-01-125010613',
+                'RCP-01_耀阳金_06': 'RCP-01-125010614',
+                'RCP-01_磨砂黑_06': 'RCP-01-125010615',
+                'RCP-01_缎光银_07': 'RCP-01-125010711',
+                'RCP-01_缎光玫瑰金_07': 'RCP-01-125010712',
+                'RCP-01_未来银_07': 'RCP-01-125010713',
+                'RCP-01_耀阳金_07': 'RCP-01-125010714',
+                'RCP-01_磨砂黑_07': 'RCP-01-125010715',
+                'RCP-01_缎光银_08': 'RCP-01-125010811',
+                'RCP-01_缎光玫瑰金_08': 'RCP-01-125010812',
+                'RCP-01_未来银_08': 'RCP-01-125010813',
+                'RCP-01_耀阳金_08': 'RCP-01-125010814',
+                'RCP-01_磨砂黑_08': 'RCP-01-125010815',
+                'RCP-01_缎光银_09': 'RCP-01-125010911',
+                'RCP-01_缎光玫瑰金_09': 'RCP-01-125010912',
+                'RCP-01_未来银_09': 'RCP-01-125010913',
+                'RCP-01_耀阳金_09': 'RCP-01-125010914',
+                'RCP-01_磨砂黑_09': 'RCP-01-125010915',
+                'RCP-01_缎光银_10': 'RCP-01-125011011',
+                'RCP-01_缎光玫瑰金_10': 'RCP-01-125011012',
+                'RCP-01_未来银_10': 'RCP-01-125011013',
+                'RCP-01_耀阳金_10': 'RCP-01-125011014',
+                'RCP-01_磨砂黑_10': 'RCP-01-125011015',
+                'RCP-01_缎光银_11': 'RCP-01-125011111',
+                'RCP-01_缎光玫瑰金_11': 'RCP-01-125011112',
+                'RCP-01_未来银_11': 'RCP-01-125011113',
+                'RCP-01_耀阳金_11': 'RCP-01-125011114',
+                'RCP-01_磨砂黑_11': 'RCP-01-125011115',
+                'RCP-01_缎光银_12': 'RCP-01-125011211',
+                'RCP-01_缎光玫瑰金_12': 'RCP-01-125011212',
+                'RCP-01_未来银_12': 'RCP-01-125011213',
+                'RCP-01_耀阳金_12': 'RCP-01-125011214',
+                'RCP-01_磨砂黑_12': 'RCP-01-125011215',
+                'RCP-01_缎光银_13': 'RCP-01-125011311',
+                'RCP-01_缎光玫瑰金_13': 'RCP-01-125011312',
+                'RCP-01_未来银_13': 'RCP-01-125011313',
+                'RCP-01_耀阳金_13': 'RCP-01-125011314',
+                'RCP-01_磨砂黑_13': 'RCP-01-125011315',
+                'RCP-01_缎光银_14': 'RCP-01-125011411',
+                'RCP-01_缎光玫瑰金_14': 'RCP-01-125011412',
+                'RCP-01_未来银_14': 'RCP-01-125011413',
+                'RCP-01_耀阳金_14': 'RCP-01-125011414',
+                'RCP-01_磨砂黑_14': 'RCP-01-125011415',
+                'RCP-01_缎光银_15': 'RCP-01-125011511',
+                'RCP-01_缎光玫瑰金_15': 'RCP-01-125011512',
+                'RCP-01_未来银_15': 'RCP-01-125011513',
+                'RCP-01_耀阳金_15': 'RCP-01-125011514',
+                'RCP-01_磨砂黑_15': 'RCP-01-125011515'
+            };
+            const key = `${device}_${color}_${sizeNum}`;
+            if (modelMap[key]) return modelMap[key];
+        }
+        
+        // RCA-01 日文版型番映射
+        if (device === 'RCA-01') {
+            const modelMap = {
+                'RCA-01_未来银_06': 'RCA-01-123030614',
+                'RCA-01_耀阳金_06': 'RCA-01-123030615',
+                'RCA-01_玫瑰金_06': 'RCA-01-123030616',
+                'RCA-01_磨砂黑_06': 'RCA-01-123030617',
+                'RCA-01_未来银_07': 'RCA-01-123030714',
+                'RCA-01_耀阳金_07': 'RCA-01-123030715',
+                'RCA-01_玫瑰金_07': 'RCA-01-123030716',
+                'RCA-01_磨砂黑_07': 'RCA-01-123030717',
+                'RCA-01_未来银_08': 'RCA-01-123030814',
+                'RCA-01_耀阳金_08': 'RCA-01-123030815',
+                'RCA-01_玫瑰金_08': 'RCA-01-123030816',
+                'RCA-01_磨砂黑_08': 'RCA-01-123030817',
+                'RCA-01_未来银_09': 'RCA-01-123030914',
+                'RCA-01_耀阳金_09': 'RCA-01-123030915',
+                'RCA-01_玫瑰金_09': 'RCA-01-123030916',
+                'RCA-01_磨砂黑_09': 'RCA-01-123030917',
+                'RCA-01_未来银_10': 'RCA-01-123031014',
+                'RCA-01_耀阳金_10': 'RCA-01-123031015',
+                'RCA-01_玫瑰金_10': 'RCA-01-123031016',
+                'RCA-01_磨砂黑_10': 'RCA-01-123031017',
+                'RCA-01_未来银_11': 'RCA-01-123031114',
+                'RCA-01_耀阳金_11': 'RCA-01-123031115',
+                'RCA-01_玫瑰金_11': 'RCA-01-123031116',
+                'RCA-01_磨砂黑_11': 'RCA-01-123031117',
+                'RCA-01_未来银_12': 'RCA-01-123031214',
+                'RCA-01_耀阳金_12': 'RCA-01-123031215',
+                'RCA-01_玫瑰金_12': 'RCA-01-123031216',
+                'RCA-01_磨砂黑_12': 'RCA-01-123031217',
+                'RCA-01_未来银_13': 'RCA-01-123031314',
+                'RCA-01_耀阳金_13': 'RCA-01-123031315',
+                'RCA-01_玫瑰金_13': 'RCA-01-123031316',
+                'RCA-01_磨砂黑_13': 'RCA-01-123031317',
+                'RCA-01_未来银_14': 'RCA-01-123031414',
+                'RCA-01_耀阳金_14': 'RCA-01-123031415',
+                'RCA-01_玫瑰金_14': 'RCA-01-123031416',
+                'RCA-01_磨砂黑_14': 'RCA-01-123031417'
+            };
+            const key = `${device}_${color}_${sizeNum}`;
+            if (modelMap[key]) return modelMap[key];
+            
+            // 如果没有找到映射，使用临时规则
+            const colorCode = getColorCode(color);
+            return `RCA-01-${colorCode}${String(size).padStart(2, '0')}`;
+        }
+        
+        // 其他设备
+        const colorCode = getColorCode(color);
+        return `${device}-${colorCode}${String(size).padStart(2, '0')}`;
+    }
+
+    // 获取UPC码（RCA-02彩盒标签专用）
+    function getUPCCode(device, color, sizeNum) {
+        if (device !== 'RCA-02') return '';
+        
+        const size = parseInt(sizeNum);
+        const sizeKey = `${size}#`;
+        
+        const upcMap = {
+            '6#_沙丘金': '810180160674', '6#_太空银': '810180160681',
+            '7#_沙丘金': '810180160698', '7#_太空银': '810180160704',
+            '8#_沙丘金': '810180160711', '8#_太空银': '810180160728',
+            '9#_沙丘金': '810180160735', '9#_太空银': '810180160742',
+            '10#_沙丘金': '810180160759', '10#_太空银': '810180160766',
+            '11#_沙丘金': '810180160773', '11#_太空银': '810180160780',
+            '12#_沙丘金': '810180160797', '12#_太空银': '810180160803',
+            '13#_沙丘金': '810180160810', '13#_太空银': '810180160827',
+            '14#_沙丘金': '810180160834', '14#_太空银': '810180160841'
+        };
+        
+        const key = `${sizeKey}_${color}`;
+        return upcMap[key] || getBarcode(device, color, sizeNum);
+    }
+
+    // ======================== 条码数据 ========================
+    const BARCODE_DATA_CN_RCA01 = {
+        "RCA-01_耀阳金_06":"6975377550462","RCA-01_耀阳金_07":"6975377550509","RCA-01_耀阳金_08":"6975377550547","RCA-01_耀阳金_09":"6975377550585","RCA-01_耀阳金_10":"6975377550622","RCA-01_耀阳金_11":"6975377550660","RCA-01_耀阳金_12":"6975377550707","RCA-01_耀阳金_13":"6975377550745","RCA-01_耀阳金_14":"6975377550783",
+        "RCA-01_未来银_06":"6975377550479","RCA-01_未来银_07":"6975377550516","RCA-01_未来银_08":"6975377550554","RCA-01_未来银_09":"6975377550592","RCA-01_未来银_10":"6975377550639","RCA-01_未来银_11":"6975377550677","RCA-01_未来银_12":"6975377550714","RCA-01_未来银_13":"6975377550752","RCA-01_未来银_14":"6975377550790",
+        "RCA-01_磨砂黑_06":"6975377550486","RCA-01_磨砂黑_07":"6975377550523","RCA-01_磨砂黑_08":"6975377550561","RCA-01_磨砂黑_09":"6975377550608","RCA-01_磨砂黑_10":"6975377550646","RCA-01_磨砂黑_11":"6975377550684","RCA-01_磨砂黑_12":"6975377550721","RCA-01_磨砂黑_13":"6975377550769","RCA-01_磨砂黑_14":"6975377550806",
+        "RCA-01_玫瑰金_06":"6975377550493","RCA-01_玫瑰金_07":"6975377550530","RCA-01_玫瑰金_08":"6975377550578","RCA-01_玫瑰金_09":"6975377550615","RCA-01_玫瑰金_10":"6975377550653","RCA-01_玫瑰金_11":"6975377550691","RCA-01_玫瑰金_12":"6975377550738","RCA-01_玫瑰金_13":"6975377550776","RCA-01_玫瑰金_14":"6975377550813"
+    };
+    const BARCODE_DATA_EN_RCA01 = {
+        "RCA-01_耀阳金_06":"6975377550820","RCA-01_耀阳金_07":"6975377550868","RCA-01_耀阳金_08":"6975377550905","RCA-01_耀阳金_09":"6975377550943","RCA-01_耀阳金_10":"6975377550981","RCA-01_耀阳金_11":"6975377551025","RCA-01_耀阳金_12":"6975377551063","RCA-01_耀阳金_13":"6975377551100","RCA-01_耀阳金_14":"6975377551414",
+        "RCA-01_未来银_06":"6975377550837","RCA-01_未来银_07":"6975377550875","RCA-01_未来银_08":"6975377550912","RCA-01_未来银_09":"6975377550950","RCA-01_未来银_10":"6975377550998","RCA-01_未来银_11":"6975377551032","RCA-01_未来银_12":"6975377551070","RCA-01_未来银_13":"6975377551209","RCA-01_未来银_14":"6975377551421",
+        "RCA-01_磨砂黑_06":"6975377550844","RCA-01_磨砂黑_07":"6975377550882","RCA-01_磨砂黑_08":"6975377550929","RCA-01_磨砂黑_09":"6975377550967","RCA-01_磨砂黑_10":"6975377551001","RCA-01_磨砂黑_11":"6975377551049","RCA-01_磨砂黑_12":"6975377551087","RCA-01_磨砂黑_13":"6975377551308","RCA-01_磨砂黑_14":"6975377551438",
+        "RCA-01_玫瑰金_06":"6975377550851","RCA-01_玫瑰金_07":"6975377550899","RCA-01_玫瑰金_08":"6975377550936","RCA-01_玫瑰金_09":"6975377550974","RCA-01_玫瑰金_10":"6975377551018","RCA-01_玫瑰金_11":"6975377551056","RCA-01_玫瑰金_12":"6975377551094","RCA-01_玫瑰金_13":"6975377551407","RCA-01_玫瑰金_14":"6975377551445"
+    };
+    const BARCODE_DATA_JA_RCA01 = {
+        "RCA-01_耀阳金_06":"6975377555061","RCA-01_耀阳金_07":"6975377555108","RCA-01_耀阳金_08":"6975377555153","RCA-01_耀阳金_09":"6975377555191","RCA-01_耀阳金_10":"6975377555245","RCA-01_耀阳金_11":"6975377555283","RCA-01_耀阳金_12":"6975377555337","RCA-01_耀阳金_13":"6975377555375","RCA-01_耀阳金_14":"6975377555412",
+        "RCA-01_未来银_06":"6975377555078","RCA-01_未来银_07":"6975377555122","RCA-01_未来银_08":"6975377555160","RCA-01_未来银_09":"6975377555207","RCA-01_未来银_10":"6975377555252","RCA-01_未来银_11":"6975377555290","RCA-01_未来银_12":"6975377555344","RCA-01_未来银_13":"6975377555382","RCA-01_未来银_14":"6975377555429",
+        "RCA-01_磨砂黑_06":"6975377555085","RCA-01_磨砂黑_07":"6975377555139","RCA-01_磨砂黑_08":"6975377555177","RCA-01_磨砂黑_09":"6975377555221","RCA-01_磨砂黑_10":"6975377555269","RCA-01_磨砂黑_11":"6975377555306","RCA-01_磨砂黑_12":"6975377555351","RCA-01_磨砂黑_13":"6975377555399","RCA-01_磨砂黑_14":"6975377555436",
+        "RCA-01_玫瑰金_06":"6975377555092","RCA-01_玫瑰金_07":"6975377555146","RCA-01_玫瑰金_08":"6975377555184","RCA-01_玫瑰金_09":"6975377555238","RCA-01_玫瑰金_10":"6975377555276","RCA-01_玫瑰金_11":"6975377555320","RCA-01_玫瑰金_12":"6975377555368","RCA-01_玫瑰金_13":"6975377555405","RCA-01_玫瑰金_14":"6975377555443"
+    };
+
+    const BARCODE_DATA_CN_RCA02 = {
+        "RCA-02_沙丘金_06":"6975377555450","RCA-02_沙丘金_07":"6975377555474","RCA-02_沙丘金_08":"6975377555498","RCA-02_沙丘金_09":"6975377555511","RCA-02_沙丘金_10":"6975377555535","RCA-02_沙丘金_11":"6975377555559","RCA-02_沙丘金_12":"6975377555573","RCA-02_沙丘金_13":"6975377555597","RCA-02_沙丘金_14":"6975377555610",
+        "RCA-02_太空银_06":"6975377555467","RCA-02_太空银_07":"6975377555481","RCA-02_太空银_08":"6975377555504","RCA-02_太空银_09":"6975377555528","RCA-02_太空银_10":"6975377555542","RCA-02_太空银_11":"6975377555566","RCA-02_太空银_12":"6975377555580","RCA-02_太空银_13":"6975377555603","RCA-02_太空银_14":"6975377555627"
+    };
+    const BARCODE_DATA_EN_RCA02 = {
+        "RCA-02_沙丘金_06":"6975377554668","RCA-02_沙丘金_07":"6975377554811","RCA-02_沙丘金_08":"6975377554835","RCA-02_沙丘金_09":"6975377554859","RCA-02_沙丘金_10":"6975377554873","RCA-02_沙丘金_11":"6975377554897","RCA-02_沙丘金_12":"6975377554910","RCA-02_沙丘金_13":"6975377554934","RCA-02_沙丘金_14":"6975377554958",
+        "RCA-02_太空银_06":"6975377554804","RCA-02_太空银_07":"6975377554828","RCA-02_太空银_08":"6975377554842","RCA-02_太空银_09":"6975377554866","RCA-02_太空银_10":"6975377554880","RCA-02_太空银_11":"6975377554903","RCA-02_太空银_12":"6975377554927","RCA-02_太空银_13":"6975377554941","RCA-02_太空银_14":"6975377554965"
+    };
+
+    const BARCODE_DATA_CN_RCP01 = {
+        "RCP-01_缎光银_06":"6975377556440","RCP-01_缎光银_07":"6975377556495","RCP-01_缎光银_08":"6975377556549","RCP-01_缎光银_09":"6975377556594","RCP-01_缎光银_10":"6975377556648","RCP-01_缎光银_11":"6975377556693","RCP-01_缎光银_12":"6975377556747","RCP-01_缎光银_13":"6975377556792","RCP-01_缎光银_14":"6975377556846","RCP-01_缎光银_15":"6975377556891",
+        "RCP-01_缎光玫瑰金_06":"6975377556457","RCP-01_缎光玫瑰金_07":"6975377556501","RCP-01_缎光玫瑰金_08":"6975377556556","RCP-01_缎光玫瑰金_09":"6975377556600","RCP-01_缎光玫瑰金_10":"6975377556655","RCP-01_缎光玫瑰金_11":"6975377556709","RCP-01_缎光玫瑰金_12":"6975377556754","RCP-01_缎光玫瑰金_13":"6975377556808","RCP-01_缎光玫瑰金_14":"6975377556853","RCP-01_缎光玫瑰金_15":"6975377556907",
+        "RCP-01_未来银_06":"6975377556464","RCP-01_未来银_07":"6975377556518","RCP-01_未来银_08":"6975377556563","RCP-01_未来银_09":"6975377556617","RCP-01_未来银_10":"6975377556662","RCP-01_未来银_11":"6975377556716","RCP-01_未来银_12":"6975377556761","RCP-01_未来银_13":"6975377556815","RCP-01_未来银_14":"6975377556860","RCP-01_未来银_15":"6975377556914",
+        "RCP-01_耀阳金_06":"6975377556471","RCP-01_耀阳金_07":"6975377556525","RCP-01_耀阳金_08":"6975377556570","RCP-01_耀阳金_09":"6975377556624","RCP-01_耀阳金_10":"6975377556679","RCP-01_耀阳金_11":"6975377556723","RCP-01_耀阳金_12":"6975377556778","RCP-01_耀阳金_13":"6975377556822","RCP-01_耀阳金_14":"6975377556877","RCP-01_耀阳金_15":"6975377556921",
+        "RCP-01_磨砂黑_06":"6975377556488","RCP-01_磨砂黑_07":"6975377556532","RCP-01_磨砂黑_08":"6975377556587","RCP-01_磨砂黑_09":"6975377556631","RCP-01_磨砂黑_10":"6975377556686","RCP-01_磨砂黑_11":"6975377556730","RCP-01_磨砂黑_12":"6975377556785","RCP-01_磨砂黑_13":"6975377556839","RCP-01_磨砂黑_14":"6975377556884","RCP-01_磨砂黑_15":"6975377556938"
+    };
+    const BARCODE_DATA_EN_RCP01 = {
+        "RCP-01_缎光银_06":"6975377555931","RCP-01_缎光银_07":"6975377555986","RCP-01_缎光银_08":"6975377556037","RCP-01_缎光银_09":"6975377556082","RCP-01_缎光银_10":"6975377556143","RCP-01_缎光银_11":"6975377556198","RCP-01_缎光银_12":"6975377556242","RCP-01_缎光银_13":"6975377556297","RCP-01_缎光银_14":"6975377556341","RCP-01_缎光银_15":"6975377556396",
+        "RCP-01_缎光玫瑰金_06":"6975377555948","RCP-01_缎光玫瑰金_07":"6975377555993","RCP-01_缎光玫瑰金_08":"6975377556044","RCP-01_缎光玫瑰金_09":"6975377556099","RCP-01_缎光玫瑰金_10":"6975377556150","RCP-01_缎光玫瑰金_11":"6975377556204","RCP-01_缎光玫瑰金_12":"6975377556259","RCP-01_缎光玫瑰金_13":"6975377556303","RCP-01_缎光玫瑰金_14":"6975377556358","RCP-01_缎光玫瑰金_15":"6975377556402",
+        "RCP-01_未来银_06":"6975377555955","RCP-01_未来银_07":"6975377556006","RCP-01_未来银_08":"6975377556051","RCP-01_未来银_09":"6975377556105","RCP-01_未来银_10":"6975377556167","RCP-01_未来银_11":"6975377556211","RCP-01_未来银_12":"6975377556266","RCP-01_未来银_13":"6975377556310","RCP-01_未来银_14":"6975377556365","RCP-01_未来银_15":"6975377556419",
+        "RCP-01_耀阳金_06":"6975377555962","RCP-01_耀阳金_07":"6975377556013","RCP-01_耀阳金_08":"6975377556068","RCP-01_耀阳金_09":"6975377556129","RCP-01_耀阳金_10":"6975377556174","RCP-01_耀阳金_11":"6975377556228","RCP-01_耀阳金_12":"6975377556273","RCP-01_耀阳金_13":"6975377556327","RCP-01_耀阳金_14":"6975377556372","RCP-01_耀阳金_15":"6975377556426",
+        "RCP-01_磨砂黑_06":"6975377555979","RCP-01_磨砂黑_07":"6975377556020","RCP-01_磨砂黑_08":"6975377556075","RCP-01_磨砂黑_09":"6975377556136","RCP-01_磨砂黑_10":"6975377556181","RCP-01_磨砂黑_11":"6975377556235","RCP-01_磨砂黑_12":"6975377556280","RCP-01_磨砂黑_13":"6975377556334","RCP-01_磨砂黑_14":"6975377556389","RCP-01_磨砂黑_15":"6975377556433"
+    };
+    const BARCODE_DATA_JA_RCP01 = {
+        "RCP-01_缎光银_06":"6975377556969","RCP-01_缎光银_07":"6975377557010","RCP-01_缎光银_08":"6975377557065","RCP-01_缎光银_09":"6975377557119","RCP-01_缎光银_10":"6975377557164","RCP-01_缎光银_11":"6975377557218","RCP-01_缎光银_12":"6975377557263","RCP-01_缎光银_13":"6975377557317","RCP-01_缎光银_14":"6975377557362","RCP-01_缎光银_15":"6975377557416",
+        "RCP-01_缎光玫瑰金_06":"6975377556976","RCP-01_缎光玫瑰金_07":"6975377557027","RCP-01_缎光玫瑰金_08":"6975377557072","RCP-01_缎光玫瑰金_09":"6975377557126","RCP-01_缎光玫瑰金_10":"6975377557171","RCP-01_缎光玫瑰金_11":"6975377557225","RCP-01_缎光玫瑰金_12":"6975377557270","RCP-01_缎光玫瑰金_13":"6975377557324","RCP-01_缎光玫瑰金_14":"6975377557379","RCP-01_缎光玫瑰金_15":"6975377557423",
+        "RCP-01_未来银_06":"6975377556983","RCP-01_未来银_07":"6975377557034","RCP-01_未来银_08":"6975377557089","RCP-01_未来银_09":"6975377557133","RCP-01_未来银_10":"6975377557188","RCP-01_未来银_11":"6975377557232","RCP-01_未来银_12":"6975377557287","RCP-01_未来银_13":"6975377557331","RCP-01_未来银_14":"6975377557386","RCP-01_未来银_15":"6975377557430",
+        "RCP-01_耀阳金_06":"6975377556990","RCP-01_耀阳金_07":"6975377557041","RCP-01_耀阳金_08":"6975377557096","RCP-01_耀阳金_09":"6975377557140","RCP-01_耀阳金_10":"6975377557195","RCP-01_耀阳金_11":"6975377557249","RCP-01_耀阳金_12":"6975377557294","RCP-01_耀阳金_13":"6975377557348","RCP-01_耀阳金_14":"6975377557393","RCP-01_耀阳金_15":"6975377557447",
+        "RCP-01_磨砂黑_06":"6975377557003","RCP-01_磨砂黑_07":"6975377557058","RCP-01_磨砂黑_08":"6975377557102","RCP-01_磨砂黑_09":"6975377557157","RCP-01_磨砂黑_10":"6975377557201","RCP-01_磨砂黑_11":"6975377557256","RCP-01_磨砂黑_12":"6975377557300","RCP-01_磨砂黑_13":"6975377557355","RCP-01_磨砂黑_14":"6975377557409","RCP-01_磨砂黑_15":"6975377557454"
+    };
+
+    function getBarcode(device, color, number) {
+        const key = `${device}_${color}_${number}`;
+        
+        if (device === 'RCA-01') {
+            if (currentLang === 'zh') return BARCODE_DATA_CN_RCA01[key];
+            if (currentLang === 'en') return BARCODE_DATA_EN_RCA01[key];
+            if (currentLang === 'ja') return BARCODE_DATA_JA_RCA01[key];
+        }
+        if (device === 'RCA-02') {
+            if (currentLang === 'zh') return BARCODE_DATA_CN_RCA02[key];
+            if (currentLang === 'en') return BARCODE_DATA_EN_RCA02[key];
+            if (currentLang === 'ja') return BARCODE_DATA_EN_RCA02[key];
+        }
+        if (device === 'RCP-01') {
+            if (currentLang === 'zh') return BARCODE_DATA_CN_RCP01[key];
+            if (currentLang === 'en') return BARCODE_DATA_EN_RCP01[key];
+            if (currentLang === 'ja') return BARCODE_DATA_JA_RCP01[key];
+        }
+        
+        return '6975377556198';
+    }
+
+    // ======================== 彩盒标签生成函数 ========================
+    // RCA-01 彩盒标签
+    function generateColorBoxTag_RCA01(device, sizeNum, color, barcode, lang) {
+        const plainSize = parseInt(sizeNum).toString();
+        let sizeDisplay = '';
+        if (lang === 'zh') {
+            sizeDisplay = `尺寸 ${plainSize.padStart(2, '0')}`;
+        } else if (lang === 'en') {
+            sizeDisplay = `Size ${plainSize.padStart(2, '0')}`;
+        } else if (lang === 'ja') {
+            sizeDisplay = `サイズ ${plainSize}`;
+        }
+        
+        const colorDisplay = getColorForColorBox(device, color, lang);
+        const colorCode = getColorCode(color);
+        const snNumber = `RCA1XXXXXXXXXX${colorCode}${plainSize.padStart(2, '0')}`;
+        const macAddress = "XX:XX:XX:XX";
+        const fullDate = getFullDate();
+        const formattedDate = `${fullDate.slice(0,4)}.${fullDate.slice(4,6)}.${fullDate.slice(6,8)}`;
+        
+        const brand = "RingConn";
+        const separator = " | ";
+        const firstLine = `${brand}${separator}${colorDisplay}${separator}${sizeDisplay}`;
+        const divider = "||||||||||||||||||||||";
+        
+        // 中文版需要添加合格证头部（带边框）
+        if (lang === 'zh') {
+            const headerBox = `
+                <div style="border:1px solid #333; padding:0.2rem 0.3rem; margin-bottom:0.5rem; display:inline-block; text-align:left;">
+                    <div>合格证 已检验</div>
+                    <div style="font-size:0.7rem;">日期：${formattedDate}</div>
+                </div>
+            `;
+            return `
+                <div class="color-box-card">
+                    ${headerBox}
+                    <div class="color-box-line">${firstLine}</div>
+                    <div class="color-box-line">${divider}</div>
+                    <div class="color-box-line">${barcode}</div>
+                    <div class="color-box-line">SN: ${snNumber}</div>
+                    <div class="color-box-line">${divider}</div>
+                    <div class="color-box-line">MAC: ${macAddress}</div>
+                    <div class="color-box-line">${divider}</div>
+                </div>
+            `;
+        }
+        
+        // 日文版
+        if (lang === 'ja') {
+            const modelCode = getModelCode(device, color, sizeNum);
+            const modelLine = `型番：${modelCode}`;
+            return `
+                <div class="color-box-card">
+                    <div class="color-box-line">${modelLine}</div>
+                    <div class="color-box-line">${firstLine}</div>
+                    <div class="color-box-line">${divider}</div>
+                    <div class="color-box-line">${barcode}</div>
+                    <div class="color-box-line">SN: ${snNumber}</div>
+                    <div class="color-box-line">${divider}</div>
+                    <div class="color-box-line">MAC: ${macAddress}</div>
+                    <div class="color-box-line">${divider}</div>
+                </div>
+            `;
+        }
+        
+        // 英文版
+        return `
+            <div class="color-box-card">
+                <div class="color-box-line">${firstLine}</div>
+                <div class="color-box-line">${divider}</div>
+                <div class="color-box-line">${barcode}</div>
+                <div class="color-box-line">SN: ${snNumber}</div>
+                <div class="color-box-line">${divider}</div>
+                <div class="color-box-line">MAC: ${macAddress}</div>
+                <div class="color-box-line">${divider}</div>
+            </div>
+        `;
+    }
+    
+    // RCA-02 彩盒标签
+    function generateColorBoxTag_RCA02(device, sizeNum, color, barcode, lang) {
+        const plainSize = parseInt(sizeNum).toString();
+        let sizeDisplay = '';
+        if (lang === 'zh') {
+            sizeDisplay = `尺寸 ${plainSize.padStart(2, '0')}`;
+        } else if (lang === 'en') {
+            sizeDisplay = `Size ${plainSize.padStart(2, '0')}`;
+        } else if (lang === 'ja') {
+            sizeDisplay = `サイズ ${plainSize}`;
+        }
+        
+        const colorDisplay = getColorForColorBox(device, color, lang);
+        const colorCode = getColorCode(color);
+        const snNumber = `RCA2XXXXXXXXXX${colorCode}${plainSize.padStart(2, '0')}`;
+        const fullDate = getFullDate();
+        const formattedDate = `${fullDate.slice(0,4)}.${fullDate.slice(4,6)}.${fullDate.slice(6,8)}`;
+        
+        const brand = "RCA-02";
+        const separator = " | ";
+        const firstLine = `${brand}${separator}${colorDisplay}${separator}${sizeDisplay}`;
+        
+        // 中文版：删除UPC行，加边框两行（与RCA-01样式一致）
+        if (lang === 'zh') {
+            const footerBox = `
+                <div style="border:1px solid #333; padding:0.2rem 0.3rem; margin-top:0.5rem; display:inline-block; text-align:left;">
+                    <div>合格证 已检验</div>
+                    <div style="font-size:0.7rem;">日期：${formattedDate}</div>
+                </div>
+            `;
+            return `
+                <div class="color-box-card-rca02">
+                    <div>${firstLine}</div>
+                    <div>69码：${barcode}</div>
+                    <div>SN: ${snNumber}</div>
+                    <div>${footerBox.replace(/\n/g, '').replace(/\s+/g, ' ')}</div>
+                </div>
+            `;
+        }
+        
+        // 日文版：删除UPC行
+        if (lang === 'ja') {
+            return `
+                <div class="color-box-card-rca02">
+                    <div>${firstLine}</div>
+                    <div>69码：${barcode}</div>
+                    <div>SN: ${snNumber}</div>
+                </div>
+            `;
+        }
+        
+        // 英文版：保留UPC行
+        const upcCode = getUPCCode(device, color, sizeNum);
+        return `
+            <div class="color-box-card-rca02">
+                <div>${firstLine}</div>
+                <div>69码：${barcode}</div>
+                <div>SN: ${snNumber}</div>
+                <div>UPC：${upcCode}</div>
+            </div>
+        `;
+    }
+    
+    // RCP-01 彩盒标签
+    function generateColorBoxTag_RCP01(device, sizeNum, color, barcode, lang) {
+        const plainSize = parseInt(sizeNum).toString();
+        let sizeDisplay = '';
+        if (lang === 'zh') {
+            sizeDisplay = `尺寸 ${plainSize.padStart(2, '0')}`;
+        } else if (lang === 'en') {
+            sizeDisplay = `Size ${plainSize.padStart(2, '0')}`;
+        } else if (lang === 'ja') {
+            sizeDisplay = `サイズ ${plainSize}`;
+        }
+        
+        const colorDisplay = getColorForColorBox(device, color, lang);
+        const colorCode = getColorCode(color);
+        const snNumber = `RCP1XXXXXXXXXX${colorCode}${plainSize.padStart(2, '0')}`;
+        const macAddress = "XX:XX:XX:XX";
+        const fullDate = getFullDate();
+        const formattedDate = `${fullDate.slice(0,4)}.${fullDate.slice(4,6)}.${fullDate.slice(6,8)}`;
+        
+        const brand = "RingConn";
+        const separator = " | ";
+        const firstLine = `${brand}${separator}${colorDisplay}${separator}${sizeDisplay}`;
+        const divider = "||||||||||||||||||||||";
+        
+        // 中文版需要添加合格证头部（带边框）
+        if (lang === 'zh') {
+            const headerBox = `
+                <div style="border:1px solid #333; padding:0.2rem 0.3rem; margin-bottom:0.5rem; display:inline-block; text-align:left;">
+                    <div>合格证 已检验</div>
+                    <div style="font-size:0.7rem;">日期：${formattedDate}</div>
+                </div>
+            `;
+            return `
+                <div class="color-box-card">
+                    ${headerBox}
+                    <div class="color-box-line">${firstLine}</div>
+                    <div class="color-box-line">${divider}</div>
+                    <div class="color-box-line">${barcode}</div>
+                    <div class="color-box-line">SN: ${snNumber}</div>
+                    <div class="color-box-line">${divider}</div>
+                    <div class="color-box-line">MAC: ${macAddress}</div>
+                    <div class="color-box-line">${divider}</div>
+                </div>
+            `;
+        }
+        
+        // 日文版
+        if (lang === 'ja') {
+            const modelCode = getModelCode(device, color, sizeNum);
+            const modelLine = `型番：${modelCode}`;
+            return `
+                <div class="color-box-card">
+                    <div class="color-box-line">${modelLine}</div>
+                    <div class="color-box-line">${firstLine}</div>
+                    <div class="color-box-line">${divider}</div>
+                    <div class="color-box-line">${barcode}</div>
+                    <div class="color-box-line">SN: ${snNumber}</div>
+                    <div class="color-box-line">${divider}</div>
+                    <div class="color-box-line">MAC: ${macAddress}</div>
+                    <div class="color-box-line">${divider}</div>
+                </div>
+            `;
+        }
+        
+        // 英文版
+        return `
+            <div class="color-box-card">
+                <div class="color-box-line">${firstLine}</div>
+                <div class="color-box-line">${divider}</div>
+                <div class="color-box-line">${barcode}</div>
+                <div class="color-box-line">SN: ${snNumber}</div>
+                <div class="color-box-line">${divider}</div>
+                <div class="color-box-line">MAC: ${macAddress}</div>
+                <div class="color-box-line">${divider}</div>
+            </div>
+        `;
+    }
+
+    // 外箱标签
+    function generateOuterBoxTag(device, sizeDisplay, productName, colorDisplay, barcode, fullDate, colorCode, lang) {
+        const lotNo = `XXXX-XXXXXXXXXXXX`;
+        const quantity = `XXPCS`;
+        const serialNumber = `LongTech-${device}-${sizeDisplay}-${colorCode}-${fullDate}-XXXX`;
+        
+        // 日文版特殊处理
+        if (lang === 'ja') {
+            const modelCode = getModelCode(device, currentColor, currentNumber);
+            const jaTitle = "             日文版";
+            const modelLine = `Model: ${modelCode}`;
+            
+            return `
+                <div class="tag-card">
+                    <div class="first-line">
+                        <span class="brand-large">RingConn</span>
+                        <div class="barcode-label-right">外箱条码</div>
+                    </div>
+                    <div class="barcode-number-right">${barcode}</div>
+                    <div class="tag-line">Product name: ${productName}</div>
+                    <div class="tag-line">Product Model: ${device}</div>
+                    <div class="tag-line">Production time: ${fullDate}</div>
+                    <div class="tag-line">Lot No: ${lotNo}</div>
+                    <div class="tag-line">Quantity: ${quantity}</div>
+                    <div class="tag-line">Size: ${sizeDisplay}</div>
+                    <div class="tag-line">Color: ${colorDisplay}</div>
+                    <div class="tag-line">G.W: KG</div>
+                    <div class="tag-line">N.W: KG</div>
+                    <div class="tag-line">${jaTitle}</div>
+                    <div class="tag-line">${modelLine}</div>
+                    <div class="serial-right">${serialNumber}</div>
+                </div>
+            `;
+        }
+        
+        // 中文版和英文版
+        return `
+            <div class="tag-card">
+                <div class="first-line">
+                    <span class="brand-large">RingConn</span>
+                    <div class="barcode-label-right">外箱条码</div>
+                </div>
+                <div class="barcode-number-right">${barcode}</div>
+                <div class="tag-line">Product name: ${productName}</div>
+                <div class="tag-line">Product Model: ${device}</div>
+                <div class="tag-line">Production time: ${fullDate}</div>
+                <div class="tag-line">Lot No: ${lotNo}</div>
+                <div class="tag-line">Quantity: ${quantity}</div>
+                <div class="tag-line">Size: ${sizeDisplay}</div>
+                <div class="tag-line">Color: ${colorDisplay}</div>
+                <div class="tag-line">G.W: KG</div>
+                <div class="tag-line">N.W: KG</div>
+                <div class="serial-right">${serialNumber}</div>
+            </div>
+        `;
+    }
+
+    // 邮寄盒标签（条码单独一行）
+    function generateMailBoxTag(device, sizeNum, color, barcode, lang) {
+        const plainSize = getPlainSize(sizeNum);
+        const colorForMail = getColorForMail(device, color, lang);
+        const prefix = getMailLabelPrefix(lang);
+        const fullDate = getFullDate();
+        const yearMonth = fullDate.slice(0, 6);  // YYYYMM
+        const dateSuffix = `(${yearMonth})`;
+        const displayText = `${prefix} ${plainSize} ${colorForMail} ${dateSuffix}`;
+        
+        // 日文版需要增加型番行
+        if (lang === 'ja') {
+            const modelCode = getModelCode(device, color, sizeNum);
+            return `
+                <div class="tag-card">
+                    <div class="mail-tag-row">
+                        <span class="mail-info-left">型番：${modelCode}</span>
+                    </div>
+                    <div class="mail-tag-row">
+                        <span class="mail-info-left">${displayText}</span>
+                    </div>
+                    <div class="mail-tag-row">
+                        <span class="mail-barcode-right">${barcode}</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 中文版和英文版
+        return `
+            <div class="tag-card">
+                <div class="mail-tag-row">
+                    <span class="mail-info-left">${displayText}</span>
+                </div>
+                <div class="mail-tag-row">
+                    <span class="mail-barcode-right">${barcode}</span>
+                </div>
+            </div>
+        `;
+    }
+
+    function generateColorBoxTag(device, sizeNum, color, barcode, lang) {
+        if (device === 'RCA-01') {
+            return generateColorBoxTag_RCA01(device, sizeNum, color, barcode, lang);
+        } else if (device === 'RCA-02') {
+            return generateColorBoxTag_RCA02(device, sizeNum, color, barcode, lang);
+        } else if (device === 'RCP-01') {
+            return generateColorBoxTag_RCP01(device, sizeNum, color, barcode, lang);
+        }
+        return `<div class="placeholder-tag">🎁 彩盒标签<br>模板待提供</div>`;
+    }
+
+    function generateAllTags() {
+        if (!currentDevice || !currentLang || !currentColor || !currentNumber) {
+            return `<div class="waiting-message">⏳ 请选择型号、语言、颜色、尺寸</div>`;
+        }
+        
+        const sizeNum = currentNumber;
+        const sizeDisplay = formatSize(sizeNum);
+        const productName = getProductName(currentDevice);
+        const colorForOuterBox = getColorForOuterBox(currentDevice, currentColor, currentLang);
+        const barcode = getBarcode(currentDevice, currentColor, currentNumber);
+        const fullDate = getFullDate();
+        const colorCode = getColorCode(currentColor);
+        
+        const outerBoxTag = generateOuterBoxTag(currentDevice, sizeDisplay, productName, colorForOuterBox, barcode, fullDate, colorCode, currentLang);
+        const mailBoxTag = generateMailBoxTag(currentDevice, sizeNum, currentColor, barcode, currentLang);
+        const colorBoxTag = generateColorBoxTag(currentDevice, sizeNum, currentColor, barcode, currentLang);
+        
+        return `
+            <div class="tags-container">
+                <div class="tag-section"><div class="tag-title">📦 外箱标签</div>${outerBoxTag}</div>
+                <div class="tag-section"><div class="tag-title">📮 邮寄盒标签</div>${mailBoxTag}</div>
+                <div class="tag-section"><div class="tag-title">🎁 彩盒标签</div>${colorBoxTag}</div>
+            </div>
+        `;
+    }
+
+    // DOM 元素
+    const deviceBtns = document.querySelectorAll('.device-btn');
+    const langBtns = document.querySelectorAll('.lang-btn');
+    const colorPanel = document.getElementById('colorPanel');
+    const numberPanel = document.getElementById('numberPanel');
+    const dynamicDiv = document.getElementById('dynamicContent');
+    const activeDeviceTag = document.getElementById('activeDeviceTag');
+    const activeLangTag = document.getElementById('activeLangTag');
+    const activeColorTag = document.getElementById('activeColorTag');
+    const activeNumberTag = document.getElementById('activeNumberTag');
+
+    function updateDisplay() { dynamicDiv.innerHTML = generateAllTags(); }
+
+    function renderColorButtons() {
+        if (!currentDevice) { colorPanel.innerHTML = '<span style="color:#888; padding:0.5rem;">请先选择设备</span>'; return; }
+        const colors = DEVICE_COLORS[currentDevice];
+        if (!colors) { colorPanel.innerHTML = ''; return; }
+        colorPanel.innerHTML = colors.map(color => `<button class="panel-btn color-btn" data-color="${color}">${color}</button>`).join('');
+        document.querySelectorAll('.color-btn').forEach(btn => btn.addEventListener('click', () => selectColor(btn.getAttribute('data-color'))));
+        highlightColorButton();
+    }
+
+    function renderNumberButtons() {
+        numberPanel.innerHTML = NUMBER_LIST.map(num => `<button class="panel-btn number-btn" data-number="${num}">${num}</button>`).join('');
+        document.querySelectorAll('.number-btn').forEach(btn => btn.addEventListener('click', () => selectNumber(btn.getAttribute('data-number'))));
+        highlightNumberButton();
+    }
+
+    function updateTags() {
+        activeDeviceTag.textContent = currentDevice || '未选择';
+        if (currentDevice === 'RCA-01') activeDeviceTag.style.background = '#1e6f5c';
+        else if (currentDevice === 'RCA-02') activeDeviceTag.style.background = '#2c5f8a';
+        else if (currentDevice === 'RCP-01') activeDeviceTag.style.background = '#8b5a2b';
+        else activeDeviceTag.style.background = '#7f8c8d';
+        const langMap = { zh: '中文版', en: '英文版', ja: '日文版' };
+        activeLangTag.textContent = currentLang ? langMap[currentLang] : '-';
+        activeColorTag.textContent = currentColor || '-';
+        activeNumberTag.textContent = currentNumber || '-';
+    }
+
+    function highlightDeviceButton() { deviceBtns.forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-device') === currentDevice)); }
+    function highlightLangButton() { langBtns.forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-lang') === currentLang)); }
+    function highlightColorButton() { document.querySelectorAll('.color-btn').forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-color') === currentColor)); }
+    function highlightNumberButton() { document.querySelectorAll('.number-btn').forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-number') === currentNumber)); }
+
+    function selectDevice(device) {
+        currentDevice = device;
+        if (currentColor && DEVICE_COLORS[device] && !DEVICE_COLORS[device].includes(currentColor)) currentColor = null;
+        renderColorButtons();
+        updateTags();
+        highlightDeviceButton();
+        updateDisplay();
+    }
+    function selectLang(lang) { currentLang = lang; updateTags(); highlightLangButton(); updateDisplay(); }
+    function selectColor(color) { currentColor = color; updateTags(); highlightColorButton(); updateDisplay(); }
+    function selectNumber(number) { currentNumber = number; updateTags(); highlightNumberButton(); updateDisplay(); }
+
+    deviceBtns.forEach(btn => btn.addEventListener('click', () => selectDevice(btn.getAttribute('data-device'))));
+    langBtns.forEach(btn => btn.addEventListener('click', () => selectLang(btn.getAttribute('data-lang'))));
+    
+    renderNumberButtons();
+    renderColorButtons();
+    selectDevice('RCA-01');
+    selectLang('zh');
+</script>
+</body>
+</html>
